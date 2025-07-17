@@ -1,0 +1,63 @@
+An alternating parity permutation is a permutation where any two adjacent elements have different parity (one is odd and the other is even). For example, [1, 2, 3, 4] exhibits alternating parity because each adjacent pair consists of one odd and one even number.
+Find all alternating parity permutations of the first n positive integers and sort them in ascending order.
+Example:
+n = 4
+The alternating parity permutations, sorted in ascending order, are:
+[1, 2, 3, 4]
+[1, 4, 3, 2]
+[2, 1, 4, 3]
+[2, 3, 4, 1]
+[3, 2, 1, 4]
+[3, 4, 1, 2]
+[4, 1, 2, 3]
+[4, 3, 2, 1]
+
+Any other permutation of the first 4 positive integers would result in adjacent elements sharing the same parity.
+
+Function Description:
+Complete the function alternatingParityPermutations in the editor with the following parameter(s):
+int n: the integer upper bound of the range of positive integers to consider
+
+Returns:
+int[][]: an array of all alternating parity permutations of the first n positive integers in sorted order. Each permutation is an array of n elements.
+
+Constraints:
+1 ≤ n ≤ 11
+
+Solution:
+def alternatingParityPermutations(n):
+    odds = [i for i in range(1, n+1) if i % 2 == 1]
+    evens = [i for i in range(1, n+1) if i % 2 == 0]
+    result = []
+
+    # If the difference in count is more than 1, impossible to alternate
+    if abs(len(odds) - len(evens)) > 1:
+        return []
+
+    def backtrack(path, odds_left, evens_left, last_parity):
+        if len(path) == n:
+            result.append(path[:])
+            return
+        if last_parity is None:
+            # Try starting with odd
+            for i, num in enumerate(odds_left):
+                backtrack(path + [num], odds_left[:i] + odds_left[i+1:], evens_left, 1)
+            # Try starting with even
+            for i, num in enumerate(evens_left):
+                backtrack(path + [num], odds_left, evens_left[:i] + evens_left[i+1:], 0)
+        elif last_parity == 1:
+            # Last was odd, next must be even
+            for i, num in enumerate(evens_left):
+                backtrack(path + [num], odds_left, evens_left[:i] + evens_left[i+1:], 0)
+        else:
+            # Last was even, next must be odd
+            for i, num in enumerate(odds_left):
+                backtrack(path + [num], odds_left[:i] + odds_left[i+1:], evens_left, 1)
+
+    backtrack([], odds, evens, None)
+    result.sort()
+    return result
+
+Example Usage :
+Example 1: n = 3
+result = alternatingParityPermutations(3)
