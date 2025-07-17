@@ -1,0 +1,41 @@
+Description:
+Given two strings s1 and s2, return the number of distinct subsequences of s2 which equals s1.
+A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.
+Example 1:
+Code ExampleUnknownInput: s1 = "ABC", s2 = "ABCBABC"
+Output: 5
+Explanation: There are 5 distinct ways to form "ABC" as a subsequence of "ABCBABC".
+
+Example 2:
+Code ExampleUnknownInput: s1 = "A", s2 = "AAAA"
+Output: 4
+Explanation: Each 'A' in s2 can be chosen to form the subsequence "A".
+
+Constraints:
+1 <= len(s1) <= 100
+1 <= len(s2) <= 1000
+s1 and s2 consist of uppercase English letters.
+
+
+Solution : 
+def getSubsequenceCount(s1, s2):
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    
+    # Empty s1 is a subsequence of any prefix of s2
+    for j in range(n + 1):
+        dp[0][j] = 1
+    
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i - 1] == s2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + dp[i][j - 1]
+            else:
+                dp[i][j] = dp[i][j - 1]
+    return dp[m][n]
+
+# Example usage:
+s1 = "ABC"
+s2 = "ABCBABC"
+print(getSubsequenceCount(s1, s2))  # Output: 5
+
