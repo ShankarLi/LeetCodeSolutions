@@ -1,0 +1,117 @@
+Your team manages a distributed system of network_nodes nodes. A major incident occurs, and the primary server with ID company begins recovery operations.
+Each node is connected via bidirectional links. Due to the incident, many systems are offline, and your goal is to bring systems back up in a specific order based on the following rules:
+
+Start from the main node (company); it is already online.
+Bring systems back up in order of proximity (shortest number of hops from company).
+If multiple systems are equally distant, recover the one with the lower node number first.
+Ignore isolated nodes — if a system is unreachable, it cannot be recovered yet.
+The function recoverNetwork takes the following four inputs:
+int network_nodes: the number of nodes in the network
+int network_from[n]: the first node where there is a bidirectional edge
+int network_to[n]: the second node where there is a bidirectional edge
+int company: the node from which the recovery starts
+
+Implement a function that returns an array of node numbers in the order they should be recovered, excluding the starting node itself.
+Example
+network_nodes = 4
+network_from = [1, 2, 2]
+network_to = [2, 3, 4]
+company = 1
+The company is located in node 1, and the edges are between nodes 1 and 2, nodes 2 and 3, and nodes 2 and 4, like so:
+  1
+ / \
+2   3
+ \ /
+  4
+
+In this case, the nodes are visited based on the following logic:
+The closest node, node 2, is visited first. It is 1 unit away.
+The next-closest nodes are visited next. Node 3 and Node 4 are both 2 units distance.
+In this case, the lower-numbered node is prioritized: visit node 3 first, then node 4.
+The answer is [2, 3, 4].
+
+Constraints
+2 \leq \text{network\\_nodes} \leq 10^5
+1 \leq n \leq \min(\text{network\\_nodes} \times (\text{network\\_nodes} - 1)) / 2, 10^5
+1 \leq \text{network\\_from}[i], \text{network\\_to}[i], \text{company} \leq n
+\text{network\\_from}[i] \neq \text{network\\_to}[i]
+
+Input Format For Custom Testing
+The first line contains two space-separated integers: network_nodes, denoting the number of nodes and n, the number of bidirectional edges.
+Each line i of the n subsequent lines (where 0≤i<n0 \leq i < n0≤i<n) contains two space-separated integers, network_from[i] and network_to[i].
+The last line contains an integer, company.
+
+Sample Case 0
+Sample Input For Custom Testing
+STDIN          Function
+-----          --------
+5 5            network_nodes = 5, n = 5
+1 2            network_from = [1, 1, 2, 3, 1], network_to = [2, 3, 4, 5, 5]
+1 3
+2 4
+3 5
+1 5
+1              company = 1
+
+Sample Output
+2
+3
+5
+4
+
+Explanation
+Nodes 2, 3, and 5 are all 1 unit of distance away from the company. These are visited based on priority in ascending order, so [2, 3, 5]. Node 4 is 2 units of distance, so it is visited next. The final order is [2, 3, 5, 4].
+
+Sample Case 1
+Sample Input For Custom Testing
+STDIN          Function
+-----          --------
+3 1            network_nodes = 3, n = 1
+1 2            network_from = [1], network_to = [2]
+2              company = 2
+
+Sample Output
+1
+
+Explanation
+Node 1 is 1 unit of distance from the company. Node 3 is not accessible because there are no edges connecting it to the company's node. Therefore, the answer is [1].
+
+
+
+
+
+Solution : 
+from collections import defaultdict, deque
+
+def recoverNetwork(network_nodes, network_from, network_to, company):
+    # Build adjacency list
+    graph = defaultdict(list)
+    for frm, to in zip(network_from, network_to):
+        graph[frm].append(to)
+        graph[to].append(frm)
+    
+    visited = set([company])
+    queue = deque([company])
+    recovery_order = []
+
+    while queue:
+        # For each level, collect nodes to visit next, sort for numerical order
+        next_level = []
+        while queue:
+            node = queue.popleft()
+            for neighbor in graph[node]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    next_level.append(neighbor)
+        # Sort next_level to ensure numerical order for same distance
+        next_level.sort()
+        recovery_order.extend(next_level)
+        queue.extend(next_level)
+    
+    return recovery_order
+
+# Example usage
+network_nodes = 5
+network_from = [1, 1, 2, 3, 1]
+network_to = [2, 3, 4, 5, 5]
+company = 1
